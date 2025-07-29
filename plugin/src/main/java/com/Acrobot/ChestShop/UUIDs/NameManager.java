@@ -355,14 +355,7 @@ public class NameManager implements Listener {
         try {
             accounts = DaoCreator.getDaoAndCreateTable(Account.class);
 
-            try {
-                adminAccount = new Account(Properties.ADMIN_SHOP_NAME, Bukkit.getOfflinePlayer(Properties.ADMIN_SHOP_NAME).getUniqueId());
-            } catch (NullPointerException ratelimitedException) {
-                // This happens when the server was ratelimited by Mojang. Unfortunately there is no nice way to check that.
-                // We fall back to the method used by CraftBukkit to generate an OfflinePlayer's UUID
-                adminAccount = new Account(Properties.ADMIN_SHOP_NAME, UUID.nameUUIDFromBytes(("OfflinePlayer:" + Properties.ADMIN_SHOP_NAME).getBytes(Charsets.UTF_8)));
-                ChestShop.getBukkitLogger().log(Level.WARNING, "Your server appears to be ratelimited by Mojang and can't query UUID data from their API. If you run into issues with admin shops please report them!");
-            }
+            adminAccount = accounts.idExists(Properties.ADMIN_SHOP_NAME) ? getAccount(Properties.ADMIN_SHOP_NAME) : new Account(Properties.ADMIN_SHOP_NAME, UUID.randomUUID());
             accounts.createOrUpdate(adminAccount);
 
             if (!Properties.SERVER_ECONOMY_ACCOUNT.isEmpty()) {
